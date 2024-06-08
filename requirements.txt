@@ -1,0 +1,3 @@
+fuse-python
+lxml
+python-slugify
