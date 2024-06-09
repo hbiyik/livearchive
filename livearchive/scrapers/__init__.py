@@ -1,8 +1,9 @@
 from .ia import InternetArchive
 from .theeye import TheEye
+from .myrient import MyRient
 
 
-classes = [InternetArchive, TheEye]
+classes = [InternetArchive, TheEye, MyRient]
 
 
 def getscrapers(cache):

@@ -14,6 +14,7 @@ from livearchive import entry
 class TheEye(model.Scraper):
     base = "https://beta.the-eye.eu/public/"
     name = "The Eye"
+    regex = "..//td[@class='filename']/a[@class='overflow']/@href"
 
     def stat(self, path):
         u = self.base + path
@@ -33,7 +34,7 @@ class TheEye(model.Scraper):
         u = self.base + path + "/"
         page = self.cache.request(u)
         html = lxml.html.fromstring(page)
-        for link in html.xpath("..//td[@class='filename']/a[@class='overflow']/@href"):
+        for link in html.xpath(self.regex):
             e = entry.Entry()
             name = parse.unquote(link.encode().decode())
             isfolder = False
