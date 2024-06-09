@@ -55,14 +55,16 @@ class LiveArchiveFS:
         return None, None
 
     def getattr(self, path):
+        ignored = path.split(os.path.sep)[-1].lower() in IGNORE_PATHS
+        if ignored:
+            return -errno.ENOENT
         e = entry.Entry.get(path)
+        scraper, scraperpath = self.getscraper(path)
         if not e:
-            scraper, scraperpath = self.getscraper(path)
             if scraper:
                 e = scraper.stat(scraperpath)
             if not e:
-                if path.split(os.path.sep)[-1].lower() not in IGNORE_PATHS:
-                    log.logger.warning(f"Tried to stat {path} but not found")
+                log.logger.warning(f"Tried to stat {path} but not found")
                 return -errno.ENOENT
             else:
                 log.logger.debug(f"Manual stat {path} found")
