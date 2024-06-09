@@ -4,7 +4,7 @@ Created on Jun 7, 2024
 @author: boogie
 '''
 import threading
-from liblivearchive import log
+from livearchive import log
 
 
 class Entry:

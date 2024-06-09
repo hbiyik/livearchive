@@ -7,9 +7,9 @@ import os
 import slugify
 import re
 
-from liblivearchive import model
-from liblivearchive import entry
-from liblivearchive import log
+from livearchive import model
+from livearchive import entry
+from livearchive import log
 
 
 roots = ["movies", "image", "texts", "audio", "software"]

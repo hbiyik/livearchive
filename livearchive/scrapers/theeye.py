@@ -7,8 +7,8 @@ from urllib import parse
 import lxml.html
 import os
 
-from liblivearchive import model
-from liblivearchive import entry
+from livearchive import model
+from livearchive import entry
 
 
 class TheEye(model.Scraper):

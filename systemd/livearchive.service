@@ -1,0 +1,9 @@
+[Unit]
+Description=Daemon that binds internet archives like archive.org or theye.eu to virtual FS
+After=network.target network-online.target nss-lookup.target
+
+[Service]
+ExecStart=/usr/bin/python /usr/bin/livearchive
+
+[Install]
+WantedBy=default.target

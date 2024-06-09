@@ -9,15 +9,11 @@ import hashlib
 import pickle
 import time
 
-from liblivearchive import log
-
-CACHEPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "cache")
-CACHESIZE = 1024 * 1024 * 1024
-CACHEAGE = 60 * 60 * 24 * 30
+from livearchive import log
 
 
 class Cache:
-    def __init__(self, path=CACHEPATH, maxsize=CACHESIZE, maxage=CACHEAGE):
+    def __init__(self, path, maxsize, maxage):
         self.maxsize = maxsize
         self.maxage = maxage
         self.cachepath = path

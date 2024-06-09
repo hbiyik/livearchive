@@ -1,0 +1,27 @@
+[project]
+name = "livearchive"
+dynamic = ["version", "dependencies"]
+description="Daemon that binds internet archives like archive.org or theye.eu to virtual FS"
+requires-python = ">=3.7"
+keywords = ["fuse", "archive", "archive.org", "theeye.eu", "mount", "virtualfs"]
+authors = [
+  {name = "Huseyin BIYIK", email = "boogiepop@gmx.com" }
+]
+# The following would provide a command line executable called `sample`
+# which executes the function `main` from this package when invoked.
+
+[project.scripts]  # Optional
+livearchive = "livearchive:app.main"
+
+[tool.setuptools]
+py-modules = ["livearchive"]
+[tool.setuptools.packages.find]
+where = ["."]
+
+#[build-system]
+#requires = ["setuptools>=43.0.0", "wheel", "python-"]
+#build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "livearchive.__version__"}
+dependencies = {file = ["requirements.txt"]}

@@ -1,3 +1,10 @@
 __pycache__
 .project
 .pydevproject
+build
+dist
+src
+pkg
+*.egg-info
+livearchive-git
+*.pkg.tar*

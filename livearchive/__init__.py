@@ -1,34 +1,39 @@
-#!/usr/bin/env python
+'''
+Created on Jun 7, 2024
 
-#    Copyright (C) 2006  Andrew Straw  <strawman@astraw.com>
-#
-#    This program can be distributed under the terms of the GNU LGPL.
-#    See the file COPYING.
-#
-from liblivearchive import cache
-from liblivearchive import entry
-from liblivearchive import model
-from liblivearchive import log
-from liblivearchive import scrapers
-import os
+@author: boogie
+'''
+
+from livearchive import cache
+from livearchive import entry
+from livearchive import model
+from livearchive import log
+from livearchive import scrapers
+
 import stat
 import errno
-import argparse
+import os
 import fuse
+import signal
 import sys
-import threading
 
 
+__version__ = "0.1"
 IGNORE_PATHS = [".hidden", ".trash", ".trash-1000", "bdmv", ".xdg-volume-info", ".autorun.inf", "autorun.inf", ".sh_thumbnails"]
+CACHEPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "cache")
+MOUNTPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "livearchive")
+CACHESIZE = 1024 * 1024 * 1024
+CACHEAGE = 60 * 60 * 24 * 30
 
 
 class LiveArchiveFS:
-    def __init__(self, cachepath, cachesize, cachetime, debug=False):
+    def __init__(self, cachepath=CACHEPATH, cachesize=CACHESIZE, cachetime=CACHEAGE, debug=False):
         self.debug = debug
         if self.debug:
             log.setlevel(log.debug)
         self.cache = cache.Cache(cachepath, cachesize, cachetime)
         self.scrapers = scrapers.getscrapers(self.cache)
+        signal.signal(signal.SIGTERM, self.signal)
 
     def __enter__(self):
         return self
@@ -36,6 +41,9 @@ class LiveArchiveFS:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.cache.close()
         return
+
+    def signal(self, *args, **kwargs):
+        raise(KeyboardInterrupt)
 
     def getscraper(self, path):
         if path:
@@ -107,44 +115,3 @@ class LiveArchiveFS:
         log.logger.debug(f"Read {path} - {e.cursor} - {size}")
         e.cursor += size
         return d
-
-
-def main():
-    parser = argparse.ArgumentParser(prog='LiveArchive',
-                                     description='This tool binds online archiving services to vitual folders on your filesystem')
-    parser.add_argument('mountpath')
-    parser.add_argument('-cp', '--cache-path', default=cache.CACHEPATH)
-    parser.add_argument('-ct', '--cache-time', default=cache.CACHEAGE / (60 * 60 * 24))
-    parser.add_argument('-cs', '--cache-size', default=cache.CACHESIZE / (1024 * 1024))
-    parser.add_argument('-d', '--debug', action="store_true")
-    parser.add_argument('-df', '--debug-fuse', action="store_true")
-    args = parser.parse_args()
-
-    if not os.path.exists(args.mountpath):
-        log.logger.error(f"Mount path {args.mountpath} does not exist")
-        sys.exit(-1)
-    if not os.path.exists(args.cache_path):
-        if args.cache_path == cache.CACHEPATH:
-            os.makedirs(args.cache_path, exist_ok=True)
-        else:
-            log.logger.error(f"Cache path {args.cache_path} does not exist")
-            sys.exit(-1)
-
-    with LiveArchiveFS(args.cache_path, args.cache_size * 1024 * 1024, args.cache_time * 60 * 60 * 24, args.debug) as server:
-        fuseargs = ["", args.mountpath, "-f", "-o", "auto_unmount"]
-        if args.debug_fuse:
-            fuseargs.append("-d")
-        t = threading.Thread(target=fuse.main, kwargs={"multithreaded": 1,
-                                                       "fuse_args": fuseargs,
-                                                       "getattr": fuse.ErrnoWrapper(server.getattr),
-                                                       "open": fuse.ErrnoWrapper(server.open),
-                                                       "readdir": fuse.ErrnoWrapper(server.readdir),
-                                                       "read": fuse.ErrnoWrapper(server.read)}, daemon=True)
-        # libfuse is handling their own ctrl+c signals, and blocks exit, therefore running it in thread
-        # so we can catch signals from the main thread. This is a workaround to exit gracefully
-        t.start()
-        t.join()
-
-
-if __name__ == '__main__':
-    main()
