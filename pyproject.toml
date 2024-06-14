@@ -11,7 +11,7 @@ authors = [
 # which executes the function `main` from this package when invoked.
 
 [project.scripts]  # Optional
-livearchive = "livearchive:app.main"
+livearchive = "livearchive:__main__.main"
 
 [tool.setuptools]
 py-modules = ["livearchive"]
