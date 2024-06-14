@@ -3,3 +3,4 @@ lxml
 python-slugify
 setuptools>=43.0.0
 wheel
+requests
