@@ -55,7 +55,7 @@ class InternetArchive(model.Scraper):
         count = 0
         while True:
             u = f"{search}{criteria}{cursor}"
-            js = self.cache.request(u, json=True)
+            js = self.cache.request(u, json=True).json()
             if not js:
                 break
             for col in js.get("items", []):
@@ -90,7 +90,7 @@ class InternetArchive(model.Scraper):
 
     def getfiles(self, uid):
         u = f"https://archive.org/metadata/{uid}"
-        js = self.cache.request(u, json=True)
+        js = self.cache.request(u, json=True).json()
         return js.get("files", [])
 
     def direntry(self, name, uid, mediatype):

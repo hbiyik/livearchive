@@ -23,17 +23,17 @@ class TheEye(model.Scraper):
             paths = [x for x in path.split(os.path.sep) if x != ""]
             e = entry.Entry()
             e.set(name=paths[-1])
-            ctype = head.get('Content-Type')
+            ctype = head.headers.get('Content-Type')
             if 'text/html' in ctype:
                 e.set(isfolder=True)
             else:
-                e.set(filesize=int(head.get('Content-length', 64)), url=u)
+                e.set(filesize=int(head.headers.get('Content-length', 64)), url=u)
             return e
 
     def iterentries(self, path):
         u = self.base + path + "/"
-        page = self.cache.request(u)
-        html = lxml.html.fromstring(page)
+        resp = self.cache.request(u)
+        html = lxml.html.fromstring(resp.content)
         for link in html.xpath(self.regex):
             e = entry.Entry()
             name = parse.unquote(link.encode().decode())
@@ -47,6 +47,6 @@ class TheEye(model.Scraper):
                 url = u + link
                 headers = {"Accept-Encoding": "identity"}
                 head = self.cache.request(url, headers=headers, ishead=True)
-                filesize = int(head.get('Content-length', 64))
+                filesize = int(head.headers.get('Content-length', 64))
             e.set(name=name, isfolder=isfolder, url=url, filesize=filesize)
             yield e

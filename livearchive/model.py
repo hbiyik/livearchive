@@ -40,8 +40,7 @@ class Scraper:
         start = entry.cursor
         end = start + size - 1
         headers = {"Range": f"bytes={start}-{end}"}
-        d = self.cache.request(entry.url, headers=headers)
-        return d
+        return self.cache.request(entry.url, headers=headers).content
 
     def iterentries(self, path):
         yield

@@ -13,6 +13,8 @@ from livearchive import log
 
 
 class Cache:
+    session = requests.Session()
+
     def __init__(self, path, maxsize, maxage):
         self.maxsize = maxsize
         self.maxage = maxage
@@ -43,7 +45,7 @@ class Cache:
         key = self.key(url, headers, ishead, json)
         if key not in self.index:
             log.logger.debug(f"Cache added for {url}")
-            data = pickle.dumps(data) if ishead or json else data
+            data = pickle.dumps(data)
             with open(os.path.join(self.cachepath, key), "wb") as f:
                 f.write(data)
             size = len(data)
@@ -57,9 +59,8 @@ class Cache:
         if key in self.index:
             with open(os.path.join(self.cachepath, key), "rb") as fp:
                 data = fp.read()
-            data = pickle.loads(data) if ishead or json else data
             log.logger.debug(f"Cache loaded for {url}")
-            return data
+            return pickle.loads(data)
         return None
 
     def tidy(self):
@@ -88,17 +89,11 @@ class Cache:
         cache = self.get(url, headers, ishead, json)
         if cache:
             return cache
-        cb = requests.head if ishead else requests.get
+        cb = Cache.session.head if ishead else Cache.session.get
         log.logger.debug(f"Http requesting {url}, ishead={ishead}")
         resp = cb(url, headers=headers, json=json, allow_redirects=True)
         if resp.status_code in [200, 206]:
-            if ishead:
-                retval = resp.headers
-            elif json:
-                retval = resp.json()
-            else:
-                retval = resp.content
-            self.add(url, headers, retval, ishead, json)
+            self.add(url, headers, resp, ishead, json)
+            return resp
         else:
-            retval = None
-        return retval
+            return None
