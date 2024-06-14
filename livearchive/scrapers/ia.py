@@ -103,7 +103,7 @@ class InternetArchive(model.Scraper):
     def fileentry(self, fitem, uid):
         name = fitem['name']
         url = f"https://archive.org/download/{uid}/{name}"
-        filesize = int(fitem.get('size', 64))
+        filesize = int(fitem.get('size', 0))
         e = entry.Entry()
         e.set(name=name, isfolder=False, url=url, filesize=filesize)
         return e

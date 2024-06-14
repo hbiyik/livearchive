@@ -11,7 +11,7 @@ class Entry:
         self.txt = txt
         self.isfolder = isfolder or self.txt.endswith("/")
         self.name = self.txt[:-1] if self.isfolder else self.txt
-        self.filesize = 64
+        self.filesize = 0
         self.url = None
         self.cursor = 0
 

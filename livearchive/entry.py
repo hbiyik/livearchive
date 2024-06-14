@@ -21,7 +21,7 @@ class Entry:
         self.multi = multi
         self.name = None
         self.isfolder = None
-        self.filesize = 64
+        self.filesize = 0
         self.url = None
         self.cursor = 0
 
@@ -30,7 +30,9 @@ class Entry:
         cacheentry = Entry.entries.get(entry.path)
         if cacheentry:
             log.logger.debug(f"Updating {cacheentry}")
-            cacheentry.set(entry.name, entry.isfolder, entry.filesize, entry.url, entry.cursor)
+            cacheentry.set(entry.name, entry.isfolder,
+                           entry.filesize or cacheentry.filesize,
+                           entry.url, entry.cursor)
         else:
             log.logger.debug(f"Adding {entry}")
             Entry.entries[entry.path] = entry
@@ -38,8 +40,6 @@ class Entry:
     @staticmethod
     def get(path):
         cached = Entry.entries.get(path)
-        if cached:
-            log.logger.debug(f"Received from entry cache {cached}")
         return cached
 
     def set(self, name=None, isfolder=None, filesize=None, url=None, cursor=None, path=None):

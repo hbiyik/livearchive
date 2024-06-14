@@ -59,7 +59,6 @@ class Cache:
         if key in self.index:
             with open(os.path.join(self.cachepath, key), "rb") as fp:
                 data = fp.read()
-            log.logger.debug(f"Cache loaded for {url}")
             return pickle.loads(data)
         return None
 
@@ -82,7 +81,8 @@ class Cache:
                 os.remove(os.path.join(self.cachepath, key))
                 log.logger.debug(f"Cleaned {cachesize} bytes")
         self.index["size"] = size - cleaned
-        log.logger.debug(f"Total Cleaned {cleaned} bytes")
+        if cleaned:
+            log.logger.debug(f"Total Cleaned {cleaned} bytes")
 
     def request(self, url, headers=None, json=None, ishead=False):
         self.tidy()

@@ -17,17 +17,17 @@ class TheEye(model.Scraper):
     regex = "..//td[@class='filename']/a[@class='overflow']/@href"
 
     def stat(self, path):
-        u = self.base + path
+        u = self.base + parse.quote(path)
         head = self.cache.request(u, ishead=True)
         if head:
             paths = [x for x in path.split(os.path.sep) if x != ""]
             e = entry.Entry()
             e.set(name=paths[-1])
-            ctype = head.headers.get('Content-Type')
+            ctype = head.headers.get('Content-Type', 'text/html')
             if 'text/html' in ctype:
                 e.set(isfolder=True)
             else:
-                e.set(filesize=int(head.headers.get('Content-length', 64)), url=u)
+                e.set(filesize=int(head.headers.get('Content-length', 0)), url=u)
             return e
 
     def iterentries(self, path):
@@ -38,15 +38,11 @@ class TheEye(model.Scraper):
             e = entry.Entry()
             name = parse.unquote(link.encode().decode())
             isfolder = False
-            filesize = None
             url = None
             if name.endswith("/"):
                 isfolder = True
                 name = name[:-1]
             if not isfolder:
                 url = u + link
-                headers = {"Accept-Encoding": "identity"}
-                head = self.cache.request(url, headers=headers, ishead=True)
-                filesize = int(head.headers.get('Content-length', 64))
-            e.set(name=name, isfolder=isfolder, url=url, filesize=filesize)
+            e.set(name=name, isfolder=isfolder, url=url, filesize=0)
             yield e

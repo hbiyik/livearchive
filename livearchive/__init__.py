@@ -60,7 +60,7 @@ class LiveArchiveFS:
             return -errno.ENOENT
         e = entry.Entry.get(path)
         scraper, scraperpath = self.getscraper(path)
-        if not e:
+        if not e or (not e.isfolder and not e.filesize):
             if scraper:
                 e = scraper.stat(scraperpath)
             if not e:
