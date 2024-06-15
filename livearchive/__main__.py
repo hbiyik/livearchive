@@ -38,7 +38,7 @@ def main():
             sys.exit(-1)
 
     with livearchive.LiveArchiveFS(args.cache_path, args.cache_size * 1024 * 1024, args.cache_time * 60 * 60 * 24, args.debug) as server:
-        fuseargs = ["", args.mount, "-f", "-o", "auto_unmount"]
+        fuseargs = ["", args.mount, "-f", "-o", f"auto_unmount,gid={os.getgid()},uid={os.getuid()}"]
         if args.debug_fuse:
             fuseargs.append("-d")
         t = threading.Thread(target=fuse.main, kwargs={"multithreaded": 1,
