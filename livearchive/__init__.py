@@ -60,7 +60,7 @@ class LiveArchiveFS:
             return -errno.ENOENT
         e = entry.Entry.get(path)
         scraper, scraperpath = self.getscraper(path)
-        if not e or (not e.isfolder and not e.filesize):
+        if not e:
             if scraper:
                 e = scraper.stat(scraperpath)
             if not e:
@@ -98,6 +98,12 @@ class LiveArchiveFS:
         if not e:
             log.logger.warning(f"Tried to open {path} but not found")
             return -errno.ENOENT
+        scraper, scraperpath = self.getscraper(path)
+        if not e.filesize:
+            e = scraper.stat(scraperpath)
+            log.logger.debug(f"Manual stat {path} found")
+            e.set(path=path)
+            entry.Entry.update(e)
         accmode = os.O_RDONLY | os.O_WRONLY | os.O_RDWR
         if (flags & accmode) != os.O_RDONLY:
             log.logger.warning(f"Tried to open {path} but flags {flags} are not proper")
