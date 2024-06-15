@@ -22,7 +22,7 @@ class TheEye(model.Scraper):
         if head:
             paths = [x for x in path.split(os.path.sep) if x != ""]
             e = entry.Entry()
-            e.set(name=paths[-1])
+            e.set(name=paths[-1] if len(paths) else self.name)
             ctype = head.headers.get('Content-Type', 'text/html')
             if 'text/html' in ctype:
                 e.set(isfolder=True)
