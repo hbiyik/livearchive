@@ -99,7 +99,7 @@ class LiveArchiveFS:
             log.logger.warning(f"Tried to open {path} but not found")
             return -errno.ENOENT
         scraper, scraperpath = self.getscraper(path)
-        if not e.filesize:
+        if e.inaccurate_size:
             e = scraper.stat(scraperpath)
             log.logger.debug(f"Manual stat {path} found")
             e.set(path=path)

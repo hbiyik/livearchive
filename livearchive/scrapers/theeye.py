@@ -11,10 +11,33 @@ from livearchive import model
 from livearchive import entry
 
 
+def human2bytes(s):
+    s = s.strip()
+    units = ["iB"]
+    replaces = [" ", ","]
+    for unit in units:
+        if s.endswith(unit):
+            s = s[:-len(unit)].strip()
+    for replace in replaces:
+        s = s.replace(replace, "")
+    if s is None:
+        return 0
+    try:
+        return int(s)
+    except ValueError:
+        symbols = 'BKMGTPEZY'
+        letter = s[-1:].strip().upper()
+        num = float(s[:-1])
+        prefix = {symbols[0]: 1}
+        for i, s in enumerate(symbols[1:]):
+            prefix[s] = 1 << (i+1)*10
+        return int(num * prefix[letter])
+
+
 class TheEye(model.Scraper):
-    base = "https://beta.the-eye.eu/public/"
+    base = "https://the-eye.eu/public/"
     name = "The Eye"
-    regex = "..//td[@class='filename']/a[@class='overflow']/@href"
+    xpath_link = ".//pre/a[position()>1]"
 
     def stat(self, path):
         u = self.base + parse.quote(path)
@@ -30,19 +53,30 @@ class TheEye(model.Scraper):
                 e.set(filesize=int(head.headers.get('Content-length', 0)), url=u)
             return e
 
-    def iterentries(self, path):
-        u = self.base + path + "/"
-        resp = self.cache.request(u)
-        html = lxml.html.fromstring(resp.content)
-        for link in html.xpath(self.regex):
+    def link2addr(self, link):
+        return link.get("href")
+
+    def link2size(self, link):
+        return link.tail.split(" ")[-1]
+
+    def iterlinks(self, html):
+        for link in html.xpath(self.xpath_link):
             e = entry.Entry()
-            name = parse.unquote(link.encode().decode())
+            name = parse.unquote(self.link2addr(link))
             isfolder = False
             url = None
+            filesize = 0
             if name.endswith("/"):
                 isfolder = True
                 name = name[:-1]
             if not isfolder:
-                url = u + link
-            e.set(name=name, isfolder=isfolder, url=url, filesize=0)
+                filesize = human2bytes(self.link2size(link))
+            e.set(name=name, isfolder=isfolder, url=url, filesize=filesize, inaccurate_size=True)
+            yield e
+
+    def iterentries(self, path):
+        u = self.base + path + "/"
+        resp = self.cache.request(u)
+        html = lxml.html.fromstring(resp.content)
+        for e in self.iterlinks(html):
             yield e

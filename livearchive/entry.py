@@ -24,15 +24,15 @@ class Entry:
         self.filesize = 0
         self.url = None
         self.cursor = 0
+        self.inaccurate_size = False
 
     @staticmethod
     def update(entry):
         cacheentry = Entry.entries.get(entry.path)
         if cacheentry:
             log.logger.debug(f"Updating {cacheentry}")
-            cacheentry.set(entry.name, entry.isfolder,
-                           entry.filesize or cacheentry.filesize,
-                           entry.url, entry.cursor)
+            filesize = entry.filesize if not entry.inaccurate_size or cacheentry.filesize == 0 else cacheentry.filesize
+            cacheentry.set(entry.name, entry.isfolder, filesize, entry.url, entry.cursor)
         else:
             log.logger.debug(f"Adding {entry}")
             Entry.entries[entry.path] = entry
@@ -42,13 +42,14 @@ class Entry:
         cached = Entry.entries.get(path)
         return cached
 
-    def set(self, name=None, isfolder=None, filesize=None, url=None, cursor=None, path=None):
+    def set(self, name=None, isfolder=None, filesize=None, url=None, cursor=None, path=None, inaccurate_size=None):
         self.name = name if name is not None else self.name
         self.isfolder = isfolder if isfolder is not None else self.isfolder
         self.filesize = filesize if filesize is not None else self.filesize
         self.url = url if url is not None else self.url
         self.cursor = cursor if cursor is not None else self.cursor
         self.path = path if path is not None else self.path
+        self.inaccurate_size = inaccurate_size if inaccurate_size is not None else self.inaccurate_size
 
     def __enter__(self):
         instance = self.entries.get(self.path, self)
