@@ -22,8 +22,8 @@ __version__ = "0.1"
 IGNORE_PATHS = [".hidden", ".trash", ".trash-1000", "bdmv", ".xdg-volume-info", ".autorun.inf", "autorun.inf", ".sh_thumbnails"]
 CACHEPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "cache")
 MOUNTPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "livearchive")
-CACHESIZE = 1024 * 1024 * 1024
-CACHEAGE = 60 * 60 * 24 * 30
+CACHESIZE = 1024 * 1024 * 100
+CACHEAGE = 60 * 60 * 6
 
 
 class LiveArchiveFS:
