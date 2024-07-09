@@ -15,7 +15,8 @@ sha256sums=('SKIP')
 pkgver(){
   cd "$pkgname"
   _rev=$(git rev-list --count HEAD)
-  _ver=$(python -c "from ${_name} import __version__ ; print(__version__)")
+  cd "$_name"
+  _ver=$(python -c "from defs import version ; print(version)")
   printf "${_ver}.${_rev}"
 }
 

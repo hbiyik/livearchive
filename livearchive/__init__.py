@@ -9,6 +9,7 @@ from livearchive import entry
 from livearchive import model
 from livearchive import log
 from livearchive import scrapers
+from livearchive import defs
 
 import stat
 import errno
@@ -17,8 +18,7 @@ import fuse
 import signal
 import sys
 
-
-__version__ = "0.1"
+__version__ = defs.version
 IGNORE_PATHS = [".hidden", ".trash", ".trash-1000", "bdmv", ".xdg-volume-info", ".autorun.inf", "autorun.inf", ".sh_thumbnails"]
 CACHEPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "cache")
 MOUNTPATH = os.path.join(os.path.expanduser('~'), ".livearchive", "livearchive")

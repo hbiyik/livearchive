@@ -23,5 +23,5 @@ where = ["."]
 #build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-version = {attr = "livearchive.__version__"}
+version = {attr = "livearchive.defs.version"}
 dependencies = {file = ["requirements.txt"]}
